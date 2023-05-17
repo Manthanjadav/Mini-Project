@@ -1,0 +1,76 @@
+def show_menu():
+    print("Welcome to Countdown Timer!")
+    print("1. Start")
+    print("2. Reset")
+    print("3. Pause")
+    print("4. Resume")
+    print("5. Stop")
+    print("0. Exit")
+
+def get_user_choice():
+    choice = input("Enter your choice: ")
+    while not choice.isdigit() or int(choice) not in range(6):
+        print("Invalid choice. Please try again.")
+        choice = input("Enter your choice: ")
+    return int(choice)
+
+def get_duration():
+    duration = input("Enter the duration in seconds: ")
+    while not duration.isdigit() or int(duration) <= 0:
+        print("Invalid duration. Please try again.")
+        duration = input("Enter the duration in seconds: ")
+    return int(duration)
+
+
+def main():
+    timer = None
+    while True:
+        show_menu()
+        choice = get_user_choice()
+
+        if choice == 0:
+            break
+
+        if choice == 1:
+            if timer and timer.is_running:
+                print("Timer is already running.")
+            else:
+                duration = get_duration()
+                timer = CountdownTimer(duration)
+                timer.start()
+
+        elif choice == 2:
+            if timer and timer.is_running:
+                print("Cannot reset while the timer is running.")
+            else:
+                duration = get_duration()
+                if timer:
+                    timer.duration = duration
+                    timer.reset()
+                    print("Timer reset.")
+
+        elif choice == 3:
+            if timer and timer.is_running:
+                timer.pause()
+                print("Timer paused.")
+            else:
+                print("No active timer to pause.")
+
+        elif choice == 4:
+            if timer and timer.is_running:
+                timer.resume()
+                print("Timer resumed.")
+            else:
+                print("No active timer to resume.")
+
+        elif choice == 5:
+            if timer and timer.is_running:
+                timer.stop()
+                print("Timer stopped.")
+            else:
+                print("No active timer to stop.")
+
+        print()  
+
+if __name__ == "__main__":
+    main()
