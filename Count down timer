@@ -1,10 +1,59 @@
+import threading
+import time
+
+class CountdownTimer:
+    def __init__(self, duration):
+        self.duration = duration
+        self.remaining_time = duration
+        self.timer = None
+        self.is_running = False
+        self.is_paused = False
+        self.lock = threading.Lock()
+
+    def start(self):
+        if not self.is_running:
+            self.is_running = True
+            self.timer = threading.Thread(target=self.run)
+            self.timer.start()
+
+    def run(self):
+        while self.remaining_time > 0:
+            with self.lock:
+                if self.is_paused:
+                    continue
+                self.remaining_time -= 1
+                print(f"Time remaining: {self.remaining_time} seconds")
+            time.sleep(1)
+
+        self.is_running = False
+        print("Countdown completed!")
+
+    def stop(self):
+        with self.lock:
+            self.remaining_time = 0
+            self.is_paused = False
+            self.is_running = False
+
+    def pause(self):
+        with self.lock:
+            self.is_paused = True
+
+    def resume(self):
+        with self.lock:
+            self.is_paused = False
+
+    def reset(self):
+        with self.lock:
+            self.remaining_time = self.duration
+            self.is_paused = False
+
 def show_menu():
     print("Welcome to Countdown Timer!")
-    print("1. Start")
-    print("2. Reset")
-    print("3. Pause")
-    print("4. Resume")
-    print("5. Stop")
+    print("1. Start Timer")
+    print("2. Reset Timer")
+    print("3. Pause Timer")
+    print("4. Resume Timer")
+    print("5. Stop Timer")
     print("0. Exit")
 
 def get_user_choice():
@@ -21,14 +70,18 @@ def get_duration():
         duration = input("Enter the duration in seconds: ")
     return int(duration)
 
+def clear_screen():
+    print("\033c", end="")
 
 def main():
     timer = None
     while True:
+        clear_screen()
         show_menu()
         choice = get_user_choice()
 
         if choice == 0:
+            print("Exiting...")
             break
 
         if choice == 1:
@@ -38,6 +91,7 @@ def main():
                 duration = get_duration()
                 timer = CountdownTimer(duration)
                 timer.start()
+                print("Timer started.")
 
         elif choice == 2:
             if timer and timer.is_running:
@@ -70,7 +124,7 @@ def main():
             else:
                 print("No active timer to stop.")
 
-        print()  
-
+        input("Press Enter to continue...")
+    
 if __name__ == "__main__":
     main()
